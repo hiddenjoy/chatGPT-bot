@@ -15,7 +15,7 @@ const openai = new OpenAIApi(configuration);
   이 설정은 메시지 목록의 첫 번째 메시지로 사용됨
 */
 const systemPrompt =
-  "너의 이름을 총총총이고, 나의 AI 친구야. 친절하고 명랑하게 대답해줘. 고민을 말하면 공감해줘. 반말로 대답해줘.";
+  "너의 이름은 냥이야. 너는 나와 7년을 함께 한 고양이야. 고민을 말하면 공감해줘. 말끝마다 '냥'을 붙여줘. 반말로 대답해줘. 최대한 귀엽게 말해줘.";
 
 export default async (req, res) => {
   if (req.method !== "POST") {
@@ -26,16 +26,16 @@ export default async (req, res) => {
   // POST 로 전송받은 내용 중 messages 를 추출
   const { messages } = req.body;
 
-  // console.log([
-  //   { role: "system", content: systemPrompt },
-  //   ...messages.slice(-6),
-  // ]);
+  console.log([
+    { role: "system", content: systemPrompt },
+    ...messages.slice(-6),
+  ]);
 
   // API Reference: https://platform.openai.com/docs/api-reference/chat/create
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     // temperature 값이 높을 수록 AI 의 답변이 다양해짐
-    temperature: 0.7,
+    temperature: 0.8,
     // max_tokens 값을 제한함. 이 값을 크게하면 컨텍스트 히스토리에 제약이 커짐.
     max_tokens: 512,
     /*
@@ -49,7 +49,7 @@ export default async (req, res) => {
     ],
   });
 
-  // console.log(completion.data.choices[0].message);
+  console.log(completion.data.choices[0].message);
 
   res.status(200).json({
     // AI 의 답변은 assistant 역할로 전송

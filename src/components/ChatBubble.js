@@ -1,3 +1,5 @@
+import cat from "../assets/images/cat.png";
+
 export const ChatBubble = ({ message }) => {
   return (
     <div
@@ -10,10 +12,11 @@ export const ChatBubble = ({ message }) => {
         className={`flex items-center ${
           message.role === "assistant"
             ? "bg-neutral-200 text-neutral-900"
-            : "bg-blue-500 text-white"
+            : "bg-pink-500 text-white"
         } rounded-2xl px-3 py-2 max-w-[67%] whitespace-pre-wrap`}
         style={{ overflowWrap: "anywhere" }}
       >
+        {message.role === "assistant" ? <img src={cat} /> : null}
         {message.content}
       </div>
     </div>

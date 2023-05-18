@@ -56,11 +56,11 @@ export const ChatInput = ({ onSendMessage }) => {
         value={content}
         rows={1}
         onChange={handleChange}
-        onKeyDown={handleKeyDown}
+        onKeyPress={handleKeyDown}
       />
 
       <button onClick={() => handleSend()}>
-        <IconArrowUp className="absolute right-2 bottom-3 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-blue-500 text-white hover:opacity-80" />
+        <IconArrowUp className="absolute right-2 bottom-3 h-8 w-8 hover:cursor-pointer rounded-full p-1 bg-pink-500 text-white hover:opacity-80" />
       </button>
     </div>
   );

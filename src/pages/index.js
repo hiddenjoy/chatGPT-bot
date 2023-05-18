@@ -1,6 +1,8 @@
 import { Chat } from "@/components/Chat";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
+import { db } from "@/firebase";
+import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 export default function Home() {
   /*
@@ -18,11 +20,35 @@ export default function Home() {
       ...
     ]
   */
+  // const collectionRef = collection(db, "message_collection");
+  // const docRef = doc(collectionRef, "message_document");
+
   const [messages, setMessages] = useState([]);
   // 메시지를 전송 중인지 여부를 저장하는 상태
   const [loading, setLoading] = useState(false);
 
   const messagesEndRef = useRef(null);
+
+  const collectionRef = collection(db, "message_collection");
+  const docRef = doc(collectionRef, "message_document");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const existingMessages = docSnap.data().message_db;
+      } else {
+        let message_db = [
+          {
+            role: "assistant",
+            content: "안녕? 나는 냥이라고 한다냥. 궁금한 게 있냥?",
+          },
+        ];
+        await setDoc(docRef, { message_db });
+      }
+    };
+    fetchData();
+  }, []);
 
   // 메시지 목록을 끝으로 스크롤
   const scrollToBottom = () => {
@@ -31,11 +57,13 @@ export default function Home() {
 
   // 메시지를 전송하는 함수
   const handleSend = async (message) => {
+    const docSnap = await getDoc(docRef);
+    const message_db = docSnap.data().message_db;
     // message 를 받아 메시지 목록에 추가
     // message 형태 = { role: "user", content: string }
     // ChatInput.js 26번째 줄 참고
     const updatedMessages = [...messages, message];
-    // console.log(updatedMessages);
+    // console.log("updatedMessages: ", updatedMessages);
     // console.log(updatedMessages.slice(-6));
 
     setMessages(updatedMessages);
@@ -56,7 +84,7 @@ export default function Home() {
 
     if (!response.ok) {
       setLoading(false);
-      alert(response.statusText);
+      throw new Error(response.statusText);
     }
 
     // 응답을 JSON 형태로 변환
@@ -67,11 +95,14 @@ export default function Home() {
       return;
     }
 
-    console.log(result);
-
     // 로딩 상태를 해제하고, 메시지 목록에 응답을 추가
     setLoading(false);
     setMessages((messages) => [...messages, result]);
+
+    message_db.push(message);
+    message_db.push(result);
+    console.log("Existing Messages: ", message_db);
+    await updateDoc(docRef, { message_db });
   };
 
   // 메시지 목록을 초기화하는 함수
@@ -80,9 +111,24 @@ export default function Home() {
     setMessages([
       {
         role: "assistant",
-        content: "안녕? 나는 총총총이야. 오늘은 무슨 일이 있었니?",
+        content: "안녕? 나는 냥이라고 한다냥. 궁금한 게 있냥?",
       },
     ]);
+  };
+
+  const handleGet = async () => {
+    try {
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const message_db = data.message_db;
+        setMessages(message_db);
+      } else {
+        console.log("no such document");
+      }
+    } catch (error) {
+      console.error("failed to load data");
+    }
   };
 
   // 메시지 목록이 업데이트 될 때마다 맨 아래로 스크롤
@@ -98,26 +144,21 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>A Simple Chatbot</title>
+        <title>고양이와 대화해요ᓚᘏᗢ</title>
         <meta name="description" content="A Simple Chatbot" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-screen bg-zinc-700">
         <div className="flex h-[50px] sm:h-[60px] border-b border-neutral-300 py-2 px-2 sm:px-8 items-center justify-between">
-          <div className="font-bold text-3xl flex text-center">
-            <a
-              className="ml-2 hover:opacity-50"
-              href="https://code-scaffold.vercel.app"
-            >
-              A Simple Chatbot
-            </a>
+          <div className="font-bold text-3xl flex justify-center items-center">
+            <a className="ml-2 text-white text-center">고양이와 대화해요ᓚᘏᗢ</a>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10">
-          <div className="max-w-[800px] mx-auto mt-4 sm:mt-12">
+        <div className="flex-1 overflow-auto sm:px-10 pb-4 sm:pb-10 bg-zinc-700 ">
+          <div className="max-w-[1000px] mx-auto mt-4 sm:mt-12 flex flex-col items-center">
             {/*
               메인 채팅 컴포넌트
               messages: 메시지 목록
@@ -131,9 +172,14 @@ export default function Home() {
             />
             {/* 메시지 목록의 끝으로 스크롤하기 위해 참조하는 엘리먼트 */}
             <div ref={messagesEndRef} />
+            <button
+              onClick={handleGet}
+              className="flex bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 border border-pink-500 rounded mt-10"
+            >
+              이전 대화기록 확인하기
+            </button>
           </div>
         </div>
-
         <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center"></div>
       </div>
     </>

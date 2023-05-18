@@ -1,3 +1,5 @@
+// 대답생성 중일 때 ...뜨는 거
+
 import { IconDots } from "@tabler/icons-react";
 
 export const ChatLoader = () => {

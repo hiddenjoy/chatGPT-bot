@@ -124,10 +124,10 @@ export default function Home() {
         const message_db = data.message_db;
         setMessages(message_db);
       } else {
-        console.log("no such document");
+        console.log("이전 기록 없음");
       }
     } catch (error) {
-      console.error("failed to load data");
+      console.error("데이터 로딩 실패");
     }
   };
 
@@ -172,12 +172,21 @@ export default function Home() {
             />
             {/* 메시지 목록의 끝으로 스크롤하기 위해 참조하는 엘리먼트 */}
             <div ref={messagesEndRef} />
-            <button
-              onClick={handleGet}
-              className="flex bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 border border-pink-500 rounded mt-10"
-            >
-              이전 대화기록 확인하기
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                onClick={handleGet}
+                className="flex bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 border border-pink-500 rounded mt-10 mr-10"
+              >
+                이전 대화기록 확인하기
+              </button>
+
+              <button
+                onClick={handleReset}
+                className="flex bg-white hover:bg-pink-700 text-pink-500 font-bold py-2 px-4 border border-pink-500 rounded mt-10 ml-10"
+              >
+                새로 대화하기
+              </button>
+            </div>
           </div>
         </div>
         <div className="flex h-[30px] sm:h-[50px] border-t border-neutral-300 py-2 px-8 items-center sm:justify-between justify-center"></div>
